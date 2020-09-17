@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppApi.Models;
 using DataAccess.Entites;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 using static AppApi.Extensions.IFormFileExtension;
@@ -17,8 +15,8 @@ namespace AppApi.Controllers
     [ApiController]
     public class BannerController : ControllerBase
     {
-        private readonly IBannerService _service;
         private readonly IWebHostEnvironment _env;
+        private readonly IBannerService _service;
 
         public BannerController(IBannerService service, IWebHostEnvironment env)
         {
@@ -40,7 +38,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Banner banner = await _service.GetBannerByIdAsync(id);
+            var banner = await _service.GetBannerByIdAsync(id);
 
             if (banner == null)
                 return NotFound();
@@ -55,22 +53,13 @@ namespace AppApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (bannerModel.Photo == null)
-            {
-                return BadRequest();
-            }
+            if (bannerModel.Photo == null) return BadRequest();
 
-            if (!bannerModel.Photo.IsImage())
-            {
-                return BadRequest();
-            }
+            if (!bannerModel.Photo.IsImage()) return BadRequest();
 
-            if (!bannerModel.Photo.LessThan(5))
-            {
-                return BadRequest();
-            }
+            if (!bannerModel.Photo.LessThan(5)) return BadRequest();
 
-            Banner banner = new Banner
+            var banner = new Banner
             {
                 Title = bannerModel.Title,
                 Description = bannerModel.Description
@@ -87,14 +76,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = banner.ID }, banner);
+            return CreatedAtAction(nameof(Get), new {id = banner.ID}, banner);
         }
 
         // PUT api/<BannerController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] BannerModel bannerModel)
         {
-            Banner bannerFromDb = await _service.GetBannerByIdAsync(id);
+            var bannerFromDb = await _service.GetBannerByIdAsync(id);
 
             if (bannerFromDb == null)
                 return NotFound();
@@ -112,15 +101,9 @@ namespace AppApi.Controllers
             {
                 if (bannerModel.Photo != null)
                 {
-                    if (!bannerModel.Photo.IsImage())
-                    {
-                        return BadRequest();
-                    }
+                    if (!bannerModel.Photo.IsImage()) return BadRequest();
 
-                    if (!bannerModel.Photo.LessThan(6))
-                    {
-                        return BadRequest();
-                    }
+                    if (!bannerModel.Photo.LessThan(6)) return BadRequest();
 
                     RemoveFile(_env.WebRootPath, "images", "banner", bannerFromDb.Image);
 
@@ -135,7 +118,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = bannerFromDb.ID }, bannerFromDb);
+            return CreatedAtAction(nameof(Get), new {id = bannerFromDb.ID}, bannerFromDb);
         }
 
         // DELETE api/<BannerController>/5
@@ -145,7 +128,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Banner banner = await _service.GetBannerByIdAsync(id);
+            var banner = await _service.GetBannerByIdAsync(id);
 
             if (banner == null)
                 return BadRequest();

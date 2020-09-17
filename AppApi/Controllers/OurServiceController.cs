@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppApi.Models;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 using static AppApi.Extensions.IFormFileExtension;
@@ -16,8 +14,8 @@ namespace AppApi.Controllers
     [ApiController]
     public class OurServiceController : ControllerBase
     {
-        private readonly IOurServiceService _service;
         private readonly IWebHostEnvironment _env;
+        private readonly IOurServiceService _service;
 
         public OurServiceController(IOurServiceService service, IWebHostEnvironment env)
         {
@@ -39,7 +37,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            OurService ourService = await _service.GetOurServiceByIdAsync(id);
+            var ourService = await _service.GetOurServiceByIdAsync(id);
 
             if (ourService == null)
                 return NotFound();
@@ -54,22 +52,13 @@ namespace AppApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (serviceModel.Photo == null)
-            {
-                return BadRequest();
-            }
+            if (serviceModel.Photo == null) return BadRequest();
 
-            if (!serviceModel.Photo.IsImage())
-            {
-                return BadRequest();
-            }
+            if (!serviceModel.Photo.IsImage()) return BadRequest();
 
-            if (!serviceModel.Photo.LessThan(5))
-            {
-                return BadRequest();
-            }
+            if (!serviceModel.Photo.LessThan(5)) return BadRequest();
 
-            OurService ourService = new OurService
+            var ourService = new OurService
             {
                 Title = serviceModel.Title,
                 Description = serviceModel.Description
@@ -86,14 +75,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = ourService.ID }, ourService);
+            return CreatedAtAction(nameof(Get), new {id = ourService.ID}, ourService);
         }
 
         // PUT api/<OurServiceController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] ServiceModel serviceModel)
         {
-            OurService ourServiceFromDb = await _service.GetOurServiceByIdAsync(id);
+            var ourServiceFromDb = await _service.GetOurServiceByIdAsync(id);
 
             if (ourServiceFromDb == null)
                 return NotFound();
@@ -111,15 +100,9 @@ namespace AppApi.Controllers
             {
                 if (serviceModel.Photo != null)
                 {
-                    if (!serviceModel.Photo.IsImage())
-                    {
-                        return BadRequest();
-                    }
+                    if (!serviceModel.Photo.IsImage()) return BadRequest();
 
-                    if (!serviceModel.Photo.LessThan(6))
-                    {
-                        return BadRequest();
-                    }
+                    if (!serviceModel.Photo.LessThan(6)) return BadRequest();
 
                     RemoveFile(_env.WebRootPath, "images", "service", ourServiceFromDb.Image);
 
@@ -134,7 +117,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = ourServiceFromDb.ID }, ourServiceFromDb);
+            return CreatedAtAction(nameof(Get), new {id = ourServiceFromDb.ID}, ourServiceFromDb);
         }
 
         // DELETE api/<OurServiceController>/5
@@ -144,7 +127,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            OurService ourService = await _service.GetOurServiceByIdAsync(id);
+            var ourService = await _service.GetOurServiceByIdAsync(id);
 
             if (ourService == null)
                 return BadRequest();

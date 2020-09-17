@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
 using System.Threading.Tasks;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 
@@ -17,8 +12,8 @@ namespace AppApi.Controllers
     [ApiController]
     public class ContactController : ControllerBase
     {
-        private readonly IContactService _service;
         private readonly IWebHostEnvironment _env;
+        private readonly IContactService _service;
 
         public ContactController(IContactService service, IWebHostEnvironment env)
         {
@@ -40,7 +35,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Contact contact = await _service.GetContactByIdAsync(id);
+            var contact = await _service.GetContactByIdAsync(id);
 
             if (contact == null)
                 return NotFound();
@@ -57,7 +52,7 @@ namespace AppApi.Controllers
 
             try
             {
-                if(_service.SendMail(contact.Email, contact.Message))
+                if (_service.SendMail(contact.Email, contact.Message))
                     await _service.CreateContactAsync(contact);
             }
 
@@ -66,14 +61,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = contact.ID }, contact);
+            return CreatedAtAction(nameof(Get), new {id = contact.ID}, contact);
         }
 
         // PUT api/<ContactController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] Contact contact)
         {
-            Contact contactFromDb = await _service.GetContactByIdAsync(id);
+            var contactFromDb = await _service.GetContactByIdAsync(id);
 
             if (contactFromDb == null)
                 return NotFound();
@@ -94,7 +89,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = contactFromDb.ID }, contactFromDb);
+            return CreatedAtAction(nameof(Get), new {id = contactFromDb.ID}, contactFromDb);
         }
 
         // DELETE api/<ContactController>/5
@@ -104,7 +99,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Contact contact = await _service.GetContactByIdAsync(id);
+            var contact = await _service.GetContactByIdAsync(id);
 
             if (contact == null)
                 return BadRequest();

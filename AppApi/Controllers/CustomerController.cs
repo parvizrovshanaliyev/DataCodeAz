@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppApi.Models;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 using static AppApi.Extensions.IFormFileExtension;
@@ -16,9 +14,9 @@ namespace AppApi.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
+        private readonly IWebHostEnvironment _env;
 
         private readonly ICustomerService _service;
-        private readonly IWebHostEnvironment _env;
 
         public CustomerController(ICustomerService service, IWebHostEnvironment env)
         {
@@ -40,7 +38,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Customer Customer = await _service.GetCustomerByIdAsync(id);
+            var Customer = await _service.GetCustomerByIdAsync(id);
 
             if (Customer == null)
                 return NotFound();
@@ -55,22 +53,13 @@ namespace AppApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (customerModel.Photo == null)
-            {
-                return BadRequest();
-            }
+            if (customerModel.Photo == null) return BadRequest();
 
-            if (!customerModel.Photo.IsImage())
-            {
-                return BadRequest();
-            }
+            if (!customerModel.Photo.IsImage()) return BadRequest();
 
-            if (!customerModel.Photo.LessThan(5))
-            {
-                return BadRequest();
-            }
+            if (!customerModel.Photo.LessThan(5)) return BadRequest();
 
-            Customer custumer = new Customer
+            var custumer = new Customer
             {
                 Name = customerModel.Name,
                 Description = customerModel.Description
@@ -87,14 +76,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = custumer.ID }, custumer);
+            return CreatedAtAction(nameof(Get), new {id = custumer.ID}, custumer);
         }
 
         // PUT api/<CustomerController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] CustomerModel customerModel)
         {
-            Customer customerFromDb = await _service.GetCustomerByIdAsync(id);
+            var customerFromDb = await _service.GetCustomerByIdAsync(id);
 
             if (customerFromDb == null)
                 return NotFound();
@@ -112,15 +101,9 @@ namespace AppApi.Controllers
             {
                 if (customerModel.Photo != null)
                 {
-                    if (!customerModel.Photo.IsImage())
-                    {
-                        return BadRequest();
-                    }
+                    if (!customerModel.Photo.IsImage()) return BadRequest();
 
-                    if (!customerModel.Photo.LessThan(6))
-                    {
-                        return BadRequest();
-                    }
+                    if (!customerModel.Photo.LessThan(6)) return BadRequest();
 
                     RemoveFile(_env.WebRootPath, "images", "customer", customerFromDb.Image);
 
@@ -135,7 +118,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = customerFromDb.ID }, customerFromDb);
+            return CreatedAtAction(nameof(Get), new {id = customerFromDb.ID}, customerFromDb);
         }
 
         // DELETE api/<CustomerController>/5
@@ -145,7 +128,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Customer customer = await _service.GetCustomerByIdAsync(id);
+            var customer = await _service.GetCustomerByIdAsync(id);
 
             if (customer == null)
                 return BadRequest();

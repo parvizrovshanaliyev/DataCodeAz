@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataAccess.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
-using static AppApi.Extensions.IFormFileExtension;
 
 namespace AppApi.Controllers
 {
@@ -15,10 +12,12 @@ namespace AppApi.Controllers
     public class PortfolioCategoryController : ControllerBase
     {
         private readonly IPortfolioCategoryService _service;
+
         public PortfolioCategoryController(IPortfolioCategoryService service)
         {
             _service = service;
         }
+
         // GET: api/<CategoryController>
         [HttpGet]
         public ActionResult<IEnumerable<PortfolioCategory>> Get()
@@ -33,7 +32,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            PortfolioCategory category = await _service.GetPortfolioByIdAsync(id);
+            var category = await _service.GetPortfolioByIdAsync(id);
 
             if (category == null)
                 return NotFound();
@@ -58,14 +57,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = category.ID }, category);
+            return CreatedAtAction(nameof(Get), new {id = category.ID}, category);
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] PortfolioCategory category)
         {
-            PortfolioCategory categoryFromDb = await _service.GetPortfolioByIdAsync(id);
+            var categoryFromDb = await _service.GetPortfolioByIdAsync(id);
 
             if (categoryFromDb == null)
                 return NotFound();
@@ -86,7 +85,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = category.ID }, category);
+            return CreatedAtAction(nameof(Get), new {id = category.ID}, category);
         }
 
         // DELETE api/<CategoryController>/5
@@ -96,7 +95,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            PortfolioCategory category = await _service.GetPortfolioByIdAsync(id);
+            var category = await _service.GetPortfolioByIdAsync(id);
 
             if (category == null)
                 return BadRequest();

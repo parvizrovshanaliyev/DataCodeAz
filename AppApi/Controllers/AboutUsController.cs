@@ -1,14 +1,13 @@
-﻿using AppApi.Extensions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AppApi.Models;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using static AppApi.Extensions.IFormFileExtension;
+
 
 namespace AppApi.Controllers
 {
@@ -16,16 +15,15 @@ namespace AppApi.Controllers
     [ApiController]
     public class AboutUsController : ControllerBase
     {
+        private readonly IWebHostEnvironment _env;
 
         private readonly IAboutUsService _service;
-        private readonly IWebHostEnvironment _env;
 
         public AboutUsController(IAboutUsService service, IWebHostEnvironment env)
         {
             _service = service;
             _env = env;
         }
-
 
 
         // GET: api/<AboutUsController>
@@ -42,7 +40,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            AboutUs aboutUs = await _service.GetAboutUsByIdAsync(id);
+            var aboutUs = await _service.GetAboutUsByIdAsync(id);
 
             if (aboutUs == null)
                 return NotFound();
@@ -57,22 +55,13 @@ namespace AppApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (aboutModel.Photo == null)
-            {
-                return BadRequest();
-            }
+            if (aboutModel.Photo == null) return BadRequest();
 
-            if (!aboutModel.Photo.IsImage())
-            {
-                return BadRequest();
-            }
+            if (!aboutModel.Photo.IsImage()) return BadRequest();
 
-            if (!aboutModel.Photo.LessThan(5))
-            {
-                return BadRequest();
-            }
+            if (!aboutModel.Photo.LessThan(5)) return BadRequest();
 
-            AboutUs aboutUs = new AboutUs
+            var aboutUs = new AboutUs
             {
                 Title = aboutModel.Title,
                 Description = aboutModel.Description
@@ -89,14 +78,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = aboutUs.ID }, aboutUs);
+            return CreatedAtAction(nameof(Get), new {id = aboutUs.ID}, aboutUs);
         }
 
         // PUT api/<AboutUsController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] AboutModel aboutModel)
         {
-            AboutUs aboutUsFromDb = await _service.GetAboutUsByIdAsync(id);
+            var aboutUsFromDb = await _service.GetAboutUsByIdAsync(id);
 
             if (aboutUsFromDb == null)
                 return NotFound();
@@ -114,15 +103,9 @@ namespace AppApi.Controllers
             {
                 if (aboutModel.Photo != null)
                 {
-                    if (!aboutModel.Photo.IsImage())
-                    {
-                        return BadRequest();
-                    }
+                    if (!aboutModel.Photo.IsImage()) return BadRequest();
 
-                    if (!aboutModel.Photo.LessThan(6))
-                    {
-                        return BadRequest();
-                    }
+                    if (!aboutModel.Photo.LessThan(6)) return BadRequest();
 
                     RemoveFile(_env.WebRootPath, "images", "about", aboutUsFromDb.Image);
 
@@ -137,7 +120,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = aboutUsFromDb.ID }, aboutUsFromDb);
+            return CreatedAtAction(nameof(Get), new {id = aboutUsFromDb.ID}, aboutUsFromDb);
         }
 
         // DELETE api/<AboutUsController>/5
@@ -147,7 +130,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            AboutUs aboutUs = await _service.GetAboutUsByIdAsync(id);
+            var aboutUs = await _service.GetAboutUsByIdAsync(id);
 
             if (aboutUs == null)
                 return BadRequest();

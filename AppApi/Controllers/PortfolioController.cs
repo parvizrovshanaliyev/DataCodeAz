@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppApi.Models;
 using DataAccess.Entites;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 using static AppApi.Extensions.IFormFileExtension;
@@ -16,14 +14,15 @@ namespace AppApi.Controllers
     [ApiController]
     public class PortfolioController : ControllerBase
     {
-        private readonly IPortfolioService _service;
         private readonly IWebHostEnvironment _env;
+        private readonly IPortfolioService _service;
 
         public PortfolioController(IPortfolioService service, IWebHostEnvironment env)
         {
             _service = service;
             _env = env;
         }
+
         // GET: api/<PortfolioController>
         [HttpGet]
         public ActionResult<IEnumerable<Portfolio>> Get()
@@ -38,7 +37,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Portfolio portfolio = await _service.GetPortfolioByIdAsync(id);
+            var portfolio = await _service.GetPortfolioByIdAsync(id);
 
             if (portfolio == null)
                 return NotFound();
@@ -53,22 +52,13 @@ namespace AppApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (portfolioModel.Photo == null)
-            {
-                return BadRequest();
-            }
+            if (portfolioModel.Photo == null) return BadRequest();
 
-            if (!portfolioModel.Photo.IsImage())
-            {
-                return BadRequest();
-            }
+            if (!portfolioModel.Photo.IsImage()) return BadRequest();
 
-            if (!portfolioModel.Photo.LessThan(5))
-            {
-                return BadRequest();
-            }
+            if (!portfolioModel.Photo.LessThan(5)) return BadRequest();
 
-            Portfolio portfolio = new Portfolio
+            var portfolio = new Portfolio
             {
                 PortfolioCategoryId = portfolioModel.CategoryId,
                 Title = portfolioModel.Title,
@@ -87,14 +77,14 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = portfolio.ID }, portfolio);
+            return CreatedAtAction(nameof(Get), new {id = portfolio.ID}, portfolio);
         }
 
         // PUT api/<PortfolioController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] PortfolioModel portfolioModel)
         {
-            Portfolio portfolioFromDb = await _service.GetPortfolioByIdAsync(id);
+            var portfolioFromDb = await _service.GetPortfolioByIdAsync(id);
 
             if (portfolioFromDb == null)
                 return NotFound();
@@ -112,18 +102,13 @@ namespace AppApi.Controllers
             {
                 if (portfolioModel.Photo != null)
                 {
-                    if (!portfolioModel.Photo.IsImage())
-                    {
-                        return BadRequest();
-                    }
+                    if (!portfolioModel.Photo.IsImage()) return BadRequest();
 
-                    if (!portfolioModel.Photo.LessThan(6))
-                    {
-                        return BadRequest();
-                    }
+                    if (!portfolioModel.Photo.LessThan(6)) return BadRequest();
 
                     RemoveFile(_env.WebRootPath, "images", "portfolio", portfolioModel.Image);
-                    portfolioFromDb.Image = await portfolioModel.Photo.SaveAsync(_env.WebRootPath, "images", "portfolio");
+                    portfolioFromDb.Image =
+                        await portfolioModel.Photo.SaveAsync(_env.WebRootPath, "images", "portfolio");
                 }
 
                 await _service.UpdatePortfolioAsync(id, portfolioFromDb);
@@ -134,7 +119,7 @@ namespace AppApi.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(Get), new { id = portfolioFromDb.ID }, portfolioFromDb);
+            return CreatedAtAction(nameof(Get), new {id = portfolioFromDb.ID}, portfolioFromDb);
         }
 
         // DELETE api/<PortfolioController>/5
@@ -144,7 +129,7 @@ namespace AppApi.Controllers
             if (id == 0)
                 return NotFound();
 
-            Portfolio portfolio = await _service.GetPortfolioByIdAsync(id);
+            var portfolio = await _service.GetPortfolioByIdAsync(id);
 
             if (portfolio == null)
                 return BadRequest();
